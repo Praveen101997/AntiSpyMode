@@ -1,11 +1,15 @@
 package com.vegabond.antispymode;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Matrix;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -14,12 +18,15 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.Face;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.ImageReader;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -31,6 +38,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import androidx.annotation.LongDef;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
@@ -38,6 +46,8 @@ import java.io.File;
 import java.util.Arrays;
 
 public class CameraViewService extends Service implements View.OnClickListener {
+
+
 
 
     private WindowManager mWindowManager;
@@ -69,6 +79,29 @@ public class CameraViewService extends Service implements View.OnClickListener {
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
 
+    /**
+     * Starts a background thread and its {@link Handler}.
+     */
+    private void startBackgroundThread() {
+        mBackgroundThread = new HandlerThread("CameraBackground");
+        mBackgroundThread.start();
+        mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
+    }
+
+    /**
+     * Stops the background thread and its {@link Handler}.
+     */
+    private void stopBackgroundThread() {
+        mBackgroundThread.quitSafely();
+        try {
+            mBackgroundThread.join();
+            mBackgroundThread = null;
+            mBackgroundHandler = null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
     public CameraViewService() {
@@ -83,17 +116,31 @@ public class CameraViewService extends Service implements View.OnClickListener {
     public void onCreate() {
         super.onCreate();
 
+        mFaceDetectionMatrix = new Matrix();
+        mFaceDetectionMatrix.setRotate(90);
+        startBackgroundThread();
+
 
         //getting the widget layout from xml using layout inflater
         mFloatingView = LayoutInflater.from(this).inflate(R.layout.layout_camera_view, null);
 
         //setting the layout parameters
-        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT);
+        final WindowManager.LayoutParams params;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            params = new WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                    PixelFormat.TRANSLUCENT);
+        }else{
+            params = new WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.TYPE_PHONE,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                    PixelFormat.TRANSLUCENT);
+        }
 
 
         //getting windows services and adding the floating view to it
@@ -144,6 +191,7 @@ public class CameraViewService extends Service implements View.OnClickListener {
         });
 
         cameraView = (TextureView) mFloatingView.findViewById(R.id.CameraTextureView);
+        mOverlayView = (OverlayView) mFloatingView.findViewById(R.id.overlay_view);
         cameraView.setSurfaceTextureListener(textureListener);
 
     }
@@ -196,6 +244,7 @@ public class CameraViewService extends Service implements View.OnClickListener {
             assert texture != null;
             texture.setDefaultBufferSize(imageDimension.getWidth(), imageDimension.getHeight());
             Surface surface = new Surface(texture);
+
             captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             captureRequestBuilder.addTarget(surface);
             cameraDevice.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback() {
@@ -207,6 +256,20 @@ public class CameraViewService extends Service implements View.OnClickListener {
                     }
                     // When the session is ready, we start displaying the preview.
                     cameraCaptureSessions = cameraCaptureSession;
+                    try {
+                        // Auto focus should be continuous for camera preview.
+                        captureRequestBuilder.set(CaptureRequest.STATISTICS_FACE_DETECT_MODE,
+                                CameraMetadata.STATISTICS_FACE_DETECT_MODE_FULL);
+                        // Flash is automatically enabled when necessary.
+//                        setAutoFlash(captureRequestBuilder);
+
+                        // Finally, we start displaying the camera preview.
+                        captureRequest = captureRequestBuilder.build();
+                        cameraCaptureSession.setRepeatingRequest(captureRequest,
+                                mCaptureCallback, mBackgroundHandler);
+                    } catch (CameraAccessException e) {
+                        e.printStackTrace();
+                    }
                     updatePreview();
                 }
 
@@ -246,7 +309,7 @@ public class CameraViewService extends Service implements View.OnClickListener {
         }
         captureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
         try {
-            cameraCaptureSessions.setRepeatingRequest(captureRequestBuilder.build(), null, mBackgroundHandler);
+            cameraCaptureSessions.setRepeatingRequest(captureRequestBuilder.build(), mCaptureCallback, mBackgroundHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -288,4 +351,71 @@ public class CameraViewService extends Service implements View.OnClickListener {
                 break;
         }
     }
+
+
+    private OverlayView mOverlayView;
+    private Matrix mFaceDetectionMatrix;
+    private CameraCaptureSession.CaptureCallback mCaptureCallback
+            = new CameraCaptureSession.CaptureCallback() {
+
+        private void process(CaptureResult result) {
+            Integer mode = result.get(CaptureResult.STATISTICS_FACE_DETECT_MODE);
+            Face[] faces = result.get(CaptureResult.STATISTICS_FACES);
+            Log.d("Test","Mode : "+mode+" | Faces : ");
+            if (faces!=null){
+                Log.d("Test","Faces : "+faces.length);
+                if (faces.length>1){
+                    Toast.makeText(getApplicationContext(),"2 Or More Faces Deetected",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            if (faces != null && mode != null) {
+                if (faces.length > 0) {
+                    for(int i = 0; i < faces.length; i++) {
+                        if (faces[i].getScore() > 50) {
+                            Log.d("Test", "faces : " + faces.length + " , mode : " + mode);
+                            int left = faces[i].getBounds().left;
+                            int top = faces[i].getBounds().top;
+                            int right = faces[i].getBounds().right;
+                            int bottom = faces[i].getBounds().bottom;
+                            //float points[] = {(float)left, (float)top, (float)right, (float)bottom};
+
+                            Rect uRect = new Rect(left, top, right, bottom);
+                            RectF rectF = new RectF(uRect);
+                            mFaceDetectionMatrix.mapRect(rectF);
+                            //mFaceDetectionMatrix.mapPoints(points);
+                            rectF.round(uRect);
+                            //uRect.set((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom);
+                            Log.i("Test", "Activity rect" + i + " bounds: " + uRect);
+
+                            final Rect rect = uRect;
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mOverlayView.setRect(rect);
+                                    mOverlayView.requestLayout();
+                                }
+                            });
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onCaptureProgressed(@NonNull CameraCaptureSession session,
+                                        @NonNull CaptureRequest request,
+                                        @NonNull CaptureResult partialResult) {
+            process(partialResult);
+        }
+
+        @Override
+        public void onCaptureCompleted(@NonNull CameraCaptureSession session,
+                                       @NonNull CaptureRequest request,
+                                       @NonNull TotalCaptureResult result) {
+            process(result);
+        }
+
+    };
 }

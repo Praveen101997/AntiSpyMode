@@ -35,7 +35,7 @@
         </RelativeLayout>
 
         <!-- this is the expanded layout -->
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/layoutExpanded"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -48,6 +48,12 @@
                 android:id="@+id/CameraTextureView"
                 android:layout_width="150dp"
                 android:layout_height="200dp" />
+
+            <com.vegabond.antispymode.OverlayView
+                android:id="@+id/overlay_view"
+                android:layout_width="150dp"
+                android:layout_height="200dp"
+                />
 
             <!--<ImageView-->
                 <!--android:id="@+id/buttonSimplifiedCodingExpanded"-->
@@ -84,6 +90,6 @@
                     <!--android:textStyle="bold" />-->
             <!--</LinearLayout>-->
 
-        </LinearLayout>
+        </RelativeLayout>
     </RelativeLayout>
 </FrameLayout>
