@@ -366,6 +366,8 @@ public class CameraViewService extends Service implements View.OnClickListener {
                 Log.d("Test","Faces : "+faces.length);
                 if (faces.length>1){
                     Toast.makeText(getApplicationContext(),"2 Or More Faces Deetected",Toast.LENGTH_SHORT).show();
+//                    startService(new Intent(CameraViewService.this, WarningView.class));
+
                 }
             }
 

@@ -28,6 +28,10 @@
             android:name=".CameraViewService"
             android:enabled="true"
             android:exported="false" />
+        <service
+            android:name=".WarningView"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>
