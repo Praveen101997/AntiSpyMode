@@ -11,7 +11,6 @@
         android:layout_height="wrap_content"
         tools:ignore="UselessParent">
 
-        <!-- this is the collapsed layout -->
         <RelativeLayout
             android:id="@+id/layoutCollapsed"
             android:layout_width="wrap_content"
@@ -25,7 +24,8 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="8dp"
                 android:background="#FFFFFF"
-                android:src="@drawable/nofacedetected" />
+                android:src="@drawable/youarebeingwatched" />
+
 
         </RelativeLayout>
 

@@ -32,6 +32,10 @@
             android:name=".WarningView"
             android:enabled="true"
             android:exported="false" />
+        <service
+            android:name=".SpyingWarningView"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>

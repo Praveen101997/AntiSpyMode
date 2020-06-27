@@ -11,11 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 
-import static com.vegabond.antispymode.CameraViewService.noFaceDetected;
-import static com.vegabond.antispymode.CameraViewService.timer;
+import static com.vegabond.antispymode.CameraViewService.spying;
+import static com.vegabond.antispymode.CameraViewService.spyingWindowDisplay;
 
-
-public class WarningView extends Service {
+public class SpyingWarningView extends Service {
 
     private WindowManager mWindowManager;
     private View mFloatingView;
@@ -44,20 +43,18 @@ public class WarningView extends Service {
 
             @Override
             public void run() {
-                try {
-                    while (!thread.isInterrupted()) {
-                        Thread.sleep(1000);
-                        Log.d("Check77","In run NoFace Detected :"+ noFaceDetected);
-                        if (!noFaceDetected){
-                            Log.d("Check77","In IF NoFace Detected :"+ noFaceDetected);
-//                            stopSelf();
-//                            break;
-                        }else{
-                            Log.d("Check77","In else NoFace Detected :"+ noFaceDetected);
-                        }
-
+                while (!thread.isInterrupted()) {
+//                        Thread.sleep(1000);
+                    Log.d("CheckSpying","In run Spying :"+ spying);
+                    if (!spying){
+                        Log.d("CheckSpying","In IF Spying :"+ spying);
+                        spyingWindowDisplay = false;
+                        stopSelf();
+                        break;
+                    }else{
+                        Log.d("CheckSpying","In else Spying :"+ spying);
                     }
-                } catch (InterruptedException e) {
+
                 }
             }
         };
@@ -65,7 +62,7 @@ public class WarningView extends Service {
         thread.start();
 
         //getting the widget layout from xml using layout inflater
-        mFloatingView = LayoutInflater.from(this).inflate(R.layout.layout_warning_view, null);
+        mFloatingView = LayoutInflater.from(this).inflate(R.layout.layout_spyingwarning_view, null);
 
         //setting the layout parameters
         final WindowManager.LayoutParams params;
@@ -89,14 +86,6 @@ public class WarningView extends Service {
         //getting windows services and adding the floating view to it
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mWindowManager.addView(mFloatingView, params);
-
-        mFloatingView.findViewById(R.id.collapsed_iv).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                timer = 0;
-                stopSelf();
-            }
-        });
 
 
 

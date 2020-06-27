@@ -47,7 +47,7 @@ import java.util.Arrays;
 
 public class CameraViewService extends Service implements View.OnClickListener {
 
-
+    static boolean noFaceDetected = false;
 
 
     private WindowManager mWindowManager;
@@ -79,6 +79,10 @@ public class CameraViewService extends Service implements View.OnClickListener {
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
 
+    Thread thread;
+    static boolean spying = false;
+    static boolean spyingWindowDisplay = false;
+
     /**
      * Starts a background thread and its {@link Handler}.
      */
@@ -102,6 +106,8 @@ public class CameraViewService extends Service implements View.OnClickListener {
         }
     }
 
+    static int timer = 0;
+
 
 
     public CameraViewService() {
@@ -119,6 +125,54 @@ public class CameraViewService extends Service implements View.OnClickListener {
         mFaceDetectionMatrix = new Matrix();
         mFaceDetectionMatrix.setRotate(90);
         startBackgroundThread();
+
+//        new Thread( new Runnable() {
+//            @Override public void run() {
+//            // Run whatever background code you want here.
+//                if (noFaceDetected){
+//                    timer++;
+//                    if (timer==10){
+//                        startService(new Intent(CameraViewService.this, WarningView.class));
+//                    }
+//                }else{
+//                    timer = 0;
+//
+//                }
+//
+//            }
+//        } ).start();
+
+        thread = new Thread() {
+
+            @Override
+            public void run() {
+                try {
+                    while (!thread.isInterrupted()) {
+                        Thread.sleep(1000);
+                        if (noFaceDetected){
+                            timer++;
+                            if (timer==10){
+                                startService(new Intent(CameraViewService.this, WarningView.class));
+                            }
+                        }else{
+                            timer = 0;
+                        }
+                        if (spying==true){
+                            if (spyingWindowDisplay==false){
+                                spyingWindowDisplay = true;
+                                startService(new Intent(CameraViewService.this, SpyingWarningView.class));
+                            }
+                        }else{
+//                            spying = true;
+                        }
+
+                    }
+                } catch (InterruptedException e) {
+                }
+            }
+        };
+
+        thread.start();
 
 
         //getting the widget layout from xml using layout inflater
@@ -363,11 +417,24 @@ public class CameraViewService extends Service implements View.OnClickListener {
             Face[] faces = result.get(CaptureResult.STATISTICS_FACES);
             Log.d("Test","Mode : "+mode+" | Faces : ");
             if (faces!=null){
+                if (faces.length==0){
+                    noFaceDetected = true;
+//                    startService(new Intent(CameraViewService.this, WarningView.class));
+                }else{
+                    noFaceDetected = false;
+//                    stopService(new Intent(CameraViewService.this,WarningView.class));
+                }
                 Log.d("Test","Faces : "+faces.length);
                 if (faces.length>1){
-                    Toast.makeText(getApplicationContext(),"2 Or More Faces Deetected",Toast.LENGTH_SHORT).show();
-//                    startService(new Intent(CameraViewService.this, WarningView.class));
+                    if (spying==true){
+                        Toast.makeText(getApplicationContext(),"You are not alone",Toast.LENGTH_SHORT).show();
+//                        startService(new Intent(CameraViewService.this, SpyingWarningView.class));
+                    }else{
+                        spying = true;
+                    }
 
+                }else{
+                   spying = false;
                 }
             }
 
