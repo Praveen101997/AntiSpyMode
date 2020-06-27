@@ -1,28 +1,140 @@
 package com.vegabond.antispymode;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.KeyguardManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.PowerManager;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.vegabond.antispymode.firstRunSetup.SettingFirstRunSetup;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int SYSTEM_ALERT_WINDOW_PERMISSION = 2084;
+
+    static SettingsUtility.SettingsControl settingControl;
+    static boolean stop = false;
+    Thread thread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SettingFirstRunSetup(getApplicationContext(),this);
+
+        settingControl = SettingsUtility.getOnDisplayControlSettings(getApplicationContext());
+
+        if (settingControl.getKeepScreenOn()) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                    | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                    | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                    | WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+        }
+
+        Thread displaySettingsThread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    while (!isInterrupted()) {
+                        Thread.sleep(1 * 1000);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                settingControl = SettingsUtility.getOnDisplayControlSettings(getApplicationContext());
+                            }
+                        });
+
+                    }
+                } catch (InterruptedException e) {
+                }
+            }
+        };
+        displaySettingsThread.start();
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
             askPermission();
         }
 
         findViewById(R.id.buttonCreateWidget).setOnClickListener(this);
+
+        Button btnTraining = findViewById(R.id.buttonTraining);
+        if (settingControl.getFaceRecognitionMode()){
+            btnTraining.setVisibility(View.VISIBLE);
+        }else{
+            btnTraining.setVisibility(View.INVISIBLE);
+        }
+
+        btnTraining.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getApplicationContext(),"Comming Soon...",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        findViewById(R.id.buttonSetting).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this,SettingsActivity.class));
+            }
+        });
+
+        findViewById(R.id.buttonRefreshCamera).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stop = true;
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+//                        stopService(new Intent(MainActivity.this,CameraViewService.class));
+                        startService(new Intent(MainActivity.this, CameraViewService.class));
+                        finish();
+                        stop = false;
+                    }
+                }, 5000);   //5 seconds
+
+            }
+        });
+
+        findViewById(R.id.buttonCloseCamera).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stop = true;
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        stop = false;
+                    }
+                }, 5000);   //5 seconds
+
+            }
+        });
+
+        findViewById(R.id.buttonTutorial).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getApplicationContext(),"Comming Soon...",Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 
@@ -44,5 +156,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             askPermission();
             Toast.makeText(this, "You need System Alert Window Permission to do this", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        Log.d("TAG", "onStart");
+        super.onStart();
+
+        int camera = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+
+        List<String> listPermissionsNeeded = new ArrayList<>();
+
+        if (camera != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.CAMERA);
+        }
+        if (!listPermissionsNeeded.isEmpty()) {
+            requestPermissions(listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), 101);
+        } else {
+
+        }
+
     }
 }

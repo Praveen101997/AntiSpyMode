@@ -36,6 +36,8 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.LongDef;
@@ -44,6 +46,9 @@ import androidx.core.app.ActivityCompat;
 
 import java.io.File;
 import java.util.Arrays;
+
+import static com.vegabond.antispymode.MainActivity.stop;
+import static com.vegabond.antispymode.MainActivity.settingControl;
 
 public class CameraViewService extends Service implements View.OnClickListener {
 
@@ -148,23 +153,36 @@ public class CameraViewService extends Service implements View.OnClickListener {
             public void run() {
                 try {
                     while (!thread.isInterrupted()) {
+
                         Thread.sleep(1000);
                         if (noFaceDetected){
                             timer++;
-                            if (timer==10){
-                                startService(new Intent(CameraViewService.this, WarningView.class));
+                            if (Integer.parseInt(settingControl.getTimerNoFaceCapturing())!=0){
+                                if (timer==Integer.parseInt(settingControl.getTimerNoFaceCapturing())){
+                                    startService(new Intent(CameraViewService.this, WarningView.class));
+                                }
                             }
+
                         }else{
                             timer = 0;
                         }
                         if (spying==true){
                             if (spyingWindowDisplay==false){
-                                spyingWindowDisplay = true;
-                                startService(new Intent(CameraViewService.this, SpyingWarningView.class));
+                                if (Integer.parseInt(settingControl.getTimerManyFaceCapturing())!=0) {
+                                    spyingWindowDisplay = true;
+                                    startService(new Intent(CameraViewService.this, SpyingWarningView.class));
+                                }
                             }
                         }else{
 //                            spying = true;
                         }
+
+                        if (stop==true){
+                            thread.interrupt();
+                            stopSelf();
+                        }
+
+
 
                     }
                 } catch (InterruptedException e) {
@@ -173,6 +191,7 @@ public class CameraViewService extends Service implements View.OnClickListener {
         };
 
         thread.start();
+
 
 
         //getting the widget layout from xml using layout inflater
@@ -197,6 +216,10 @@ public class CameraViewService extends Service implements View.OnClickListener {
         }
 
 
+
+
+
+
         //getting windows services and adding the floating view to it
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mWindowManager.addView(mFloatingView, params);
@@ -206,9 +229,25 @@ public class CameraViewService extends Service implements View.OnClickListener {
         collapsedView = mFloatingView.findViewById(R.id.layoutCollapsed);
         expandedView = mFloatingView.findViewById(R.id.layoutExpanded);
 
+        expandedView.setVisibility(View.VISIBLE);
+        expandedView.setVisibility(View.GONE);
+
         //adding click listener to close button and expanded view
         mFloatingView.findViewById(R.id.buttonClose).setOnClickListener(this);
         expandedView.setOnClickListener(this);
+
+        if (settingControl.getDisplayWidget()){
+            collapsedView.setVisibility(View.VISIBLE);
+        }else{
+            expandedView.setVisibility(View.VISIBLE);
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    expandedView.setVisibility(View.GONE);
+                    collapsedView.setVisibility(View.GONE);
+                }
+            }, 5000);   //5 seconds
+        }
 
         //adding an touchlistener to make drag movement of the floating widget
         mFloatingView.findViewById(R.id.relativeLayoutParent).setOnTouchListener(new View.OnTouchListener() {
@@ -245,8 +284,12 @@ public class CameraViewService extends Service implements View.OnClickListener {
         });
 
         cameraView = (TextureView) mFloatingView.findViewById(R.id.CameraTextureView);
+
+
         mOverlayView = (OverlayView) mFloatingView.findViewById(R.id.overlay_view);
         cameraView.setSurfaceTextureListener(textureListener);
+
+        expandedView.setLayoutParams(new RelativeLayout.LayoutParams(Integer.parseInt(settingControl.getCameraSize())*15, Integer.parseInt(settingControl.getCameraSize())*20));
 
     }
 
@@ -341,7 +384,8 @@ public class CameraViewService extends Service implements View.OnClickListener {
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         Log.e("TAG", "is camera open");
         try {
-            cameraId = manager.getCameraIdList()[1];
+//            cameraId = manager.getCameraIdList()[1];
+            cameraId = settingControl.getCameraID();
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             assert map != null;
@@ -425,16 +469,18 @@ public class CameraViewService extends Service implements View.OnClickListener {
 //                    stopService(new Intent(CameraViewService.this,WarningView.class));
                 }
                 Log.d("Test","Faces : "+faces.length);
-                if (faces.length>1){
-                    if (spying==true){
-                        Toast.makeText(getApplicationContext(),"You are not alone",Toast.LENGTH_SHORT).show();
+                if (Integer.parseInt(settingControl.getTimerManyFaceCapturing())!=0) {
+                    if (faces.length > Integer.parseInt(settingControl.getTimerManyFaceCapturing())) {
+                        if (spying == true) {
+                            Toast.makeText(getApplicationContext(), "You are not alone", Toast.LENGTH_SHORT).show();
 //                        startService(new Intent(CameraViewService.this, SpyingWarningView.class));
-                    }else{
-                        spying = true;
-                    }
+                        } else {
+                            spying = true;
+                        }
 
-                }else{
-                   spying = false;
+                    } else {
+                        spying = false;
+                    }
                 }
             }
 
@@ -443,28 +489,28 @@ public class CameraViewService extends Service implements View.OnClickListener {
                     for(int i = 0; i < faces.length; i++) {
                         if (faces[i].getScore() > 50) {
                             Log.d("Test", "faces : " + faces.length + " , mode : " + mode);
-                            int left = faces[i].getBounds().left;
-                            int top = faces[i].getBounds().top;
-                            int right = faces[i].getBounds().right;
-                            int bottom = faces[i].getBounds().bottom;
-                            //float points[] = {(float)left, (float)top, (float)right, (float)bottom};
-
-                            Rect uRect = new Rect(left, top, right, bottom);
-                            RectF rectF = new RectF(uRect);
-                            mFaceDetectionMatrix.mapRect(rectF);
-                            //mFaceDetectionMatrix.mapPoints(points);
-                            rectF.round(uRect);
-                            //uRect.set((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom);
-                            Log.i("Test", "Activity rect" + i + " bounds: " + uRect);
-
-                            final Rect rect = uRect;
-                            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mOverlayView.setRect(rect);
-                                    mOverlayView.requestLayout();
-                                }
-                            });
+//                            int left = faces[i].getBounds().left;
+//                            int top = faces[i].getBounds().top;
+//                            int right = faces[i].getBounds().right;
+//                            int bottom = faces[i].getBounds().bottom;
+//                            //float points[] = {(float)left, (float)top, (float)right, (float)bottom};
+//
+//                            Rect uRect = new Rect(left, top, right, bottom);
+//                            RectF rectF = new RectF(uRect);
+//                            mFaceDetectionMatrix.mapRect(rectF);
+//                            //mFaceDetectionMatrix.mapPoints(points);
+//                            rectF.round(uRect);
+//                            //uRect.set((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom);
+//                            Log.i("Test", "Activity rect" + i + " bounds: " + uRect);
+//
+//                            final Rect rect = uRect;
+//                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    mOverlayView.setRect(rect);
+//                                    mOverlayView.requestLayout();
+//                                }
+//                            });
                             break;
                         }
                     }

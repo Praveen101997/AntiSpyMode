@@ -13,6 +13,7 @@ import android.view.WindowManager;
 
 import static com.vegabond.antispymode.CameraViewService.noFaceDetected;
 import static com.vegabond.antispymode.CameraViewService.timer;
+import static com.vegabond.antispymode.MainActivity.stop;
 
 
 public class WarningView extends Service {
@@ -55,6 +56,11 @@ public class WarningView extends Service {
                         }else{
                             Log.d("Check77","In else NoFace Detected :"+ noFaceDetected);
                         }
+                        if (stop==true){
+                            thread.interrupt();
+                            stopSelf();
+                        }
+
 
                     }
                 } catch (InterruptedException e) {

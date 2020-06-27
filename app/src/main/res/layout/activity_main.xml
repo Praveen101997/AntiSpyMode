@@ -1,14 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
 
-    <Button
-        android:id="@+id/buttonCreateWidget"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="Create Floating Widget" />
+        android:layout_marginTop="30dp"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/buttonCreateWidget"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:background="@drawable/circular_button"
+            android:text="START"
+            android:textColor="#FFF"
+            android:textSize="28sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="50dp"
+        >
+        <Button
+            android:id="@+id/buttonTraining"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingStart="50dp"
+            android:paddingEnd="50dp"
+            android:text="Training"
+            android:textSize="20sp"
+            android:visibility="invisible"
+            android:background="@drawable/rounded_gradient"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="50dp"
+        >
+        <Button
+            android:id="@+id/buttonRefreshCamera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingStart="50dp"
+            android:paddingEnd="50dp"
+            android:text="Refresh Anti Spy Mode"
+            android:textSize="20sp"
+            android:background="@drawable/rounded_gradient"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="50dp"
+        >
+        <Button
+            android:id="@+id/buttonCloseCamera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingStart="50dp"
+            android:paddingEnd="50dp"
+            android:text="Stop Anti Spy Mode"
+            android:textSize="20sp"
+            android:background="@drawable/rounded_gradient"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="50dp"
+        >
+        <Button
+            android:id="@+id/buttonSetting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingStart="50dp"
+            android:paddingEnd="50dp"
+            android:text="Settings"
+            android:textSize="20sp"
+            android:background="@drawable/rounded_gradient"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="50dp"
+        >
+        <Button
+            android:id="@+id/buttonTutorial"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingStart="50dp"
+            android:paddingEnd="50dp"
+            android:text="Tutorial"
+            android:textSize="20sp"
+            android:background="@drawable/rounded_gradient"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center|bottom"
+            android:layout_marginBottom="20dp"
+            android:textSize="15sp"
+            android:text="Copyright © Praveen Kumar Sharma 2020"
+            />
 
 
-</RelativeLayout>
+    </LinearLayout>
+
+
+
+
+
+
+</LinearLayout>

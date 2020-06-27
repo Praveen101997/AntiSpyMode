@@ -37,58 +37,23 @@
         <!-- this is the expanded layout -->
         <RelativeLayout
             android:id="@+id/layoutExpanded"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
             android:background="#a0c3d7"
             android:orientation="horizontal"
-            android:padding="8dp"
-            android:visibility="gone">
+            android:padding="2dp"
+            android:visibility="visible">
 
             <TextureView
                 android:id="@+id/CameraTextureView"
-                android:layout_width="150dp"
-                android:layout_height="200dp" />
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
             <com.vegabond.antispymode.OverlayView
                 android:id="@+id/overlay_view"
-                android:layout_width="150dp"
-                android:layout_height="200dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 />
-
-            <!--<ImageView-->
-                <!--android:id="@+id/buttonSimplifiedCodingExpanded"-->
-                <!--android:layout_width="80dp"-->
-                <!--android:layout_height="80dp"-->
-                <!--android:src="@drawable/icon_camera"-->
-                <!--tools:ignore="ContentDescription" />-->
-
-            <!--<LinearLayout-->
-                <!--android:id="@+id/buttonSimplifiedCoding"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:orientation="vertical">-->
-
-                <!--<TextView-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:paddingLeft="15dp"-->
-                    <!--android:paddingRight="15dp"-->
-                    <!--android:paddingTop="15dp"-->
-                    <!--android:text="Simplified Coding"-->
-                    <!--android:textAlignment="center"-->
-                    <!--android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"-->
-                    <!--android:textColor="#ffffff"-->
-                    <!--android:textStyle="bold" />-->
-
-                <!--<TextView-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:text="www.simplifiedcoding.net"-->
-                    <!--android:textAlignment="center"-->
-                    <!--android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"-->
-                    <!--android:textColor="#ffffff"-->
-                    <!--android:textStyle="bold" />-->
-            <!--</LinearLayout>-->
 
         </RelativeLayout>
     </RelativeLayout>

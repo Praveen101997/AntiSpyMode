@@ -13,6 +13,7 @@ import android.view.WindowManager;
 
 import static com.vegabond.antispymode.CameraViewService.spying;
 import static com.vegabond.antispymode.CameraViewService.spyingWindowDisplay;
+import static com.vegabond.antispymode.MainActivity.stop;
 
 public class SpyingWarningView extends Service {
 
