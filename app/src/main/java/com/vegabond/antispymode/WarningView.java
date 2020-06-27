@@ -2,27 +2,32 @@ package com.vegabond.antispymode;
 
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
 import static com.vegabond.antispymode.CameraViewService.noFaceDetected;
 import static com.vegabond.antispymode.CameraViewService.timer;
 import static com.vegabond.antispymode.MainActivity.stop;
 
 
-public class WarningView extends Service {
+public class WarningView extends Service implements View.OnTouchListener {
 
     private WindowManager mWindowManager;
     private View mFloatingView;
     Thread thread;
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
+    ImageView warning;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -96,13 +101,16 @@ public class WarningView extends Service {
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mWindowManager.addView(mFloatingView, params);
 
-        mFloatingView.findViewById(R.id.collapsed_iv).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                timer = 0;
-                stopSelf();
-            }
-        });
+//        mFloatingView.findViewById(R.id.collapsed_iv).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                timer = 0;
+//                stopSelf();
+//            }
+//        });
+
+        warning = mFloatingView.findViewById(R.id.collapsed_iv);
+        warning.setOnTouchListener(this);
 
 
 
@@ -113,5 +121,59 @@ public class WarningView extends Service {
     public void onDestroy() {
         super.onDestroy();
         if (mFloatingView != null) mWindowManager.removeView(mFloatingView);
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent ev) {
+        boolean handledHere;
+
+        final int action = ev.getAction();
+
+        final int evX = (int) ev.getX();
+        final int evY = (int) ev.getY();
+
+        switch (action) {
+            case MotionEvent.ACTION_DOWN :
+
+            case MotionEvent.ACTION_UP :
+                int touchColor = getHotspotColor (R.id.image_areas, evX, evY);
+
+                int tolerance = 10;
+
+                if (closeMatch (Color.RED, touchColor, tolerance)){
+                    timer = 0;
+                    stopSelf();
+                }
+
+                handledHere = false;
+                break;
+
+            default:
+                handledHere = false;
+        } // end switch
+        return handledHere;
+    }
+
+    public boolean closeMatch (int color1, int color2, int tolerance) {
+        if ((int) Math.abs (Color.red (color1) - Color.red (color2)) > tolerance ) return false;
+        return true;
+    }
+
+    public int getHotspotColor (int hotspotId, int x, int y) {
+        ImageView img = (ImageView) mFloatingView.findViewById (hotspotId);
+        if (img == null) {
+            Log.d ("ImageAreasActivity", "Hot spot image not found");
+            return 0;
+        } else {
+            img.setDrawingCacheEnabled(true);
+            Bitmap hotspots = Bitmap.createBitmap(img.getDrawingCache());
+            if (hotspots == null) {
+                Log.d ("ImageAreasActivity", "Hot spot bitmap was not created");
+                return 0;
+            } else {
+                img.setDrawingCacheEnabled(false);
+                return hotspots.getPixel(x, y);
+            }
+        }
     }
 }

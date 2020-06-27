@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -18,6 +19,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -25,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.vegabond.antispymode.firstRunSetup.SettingFirstRunSetup;
-
+import android.content.DialogInterface;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int SYSTEM_ALERT_WINDOW_PERMISSION = 2084;
 
@@ -37,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        displayHint();
 
         SettingFirstRunSetup(getApplicationContext(),this);
 
@@ -176,5 +180,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
 
+    }
+
+    public void displayHint(){
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+//        adb.setView(alertDialogView);
+        adb.setTitle("Special Hint");
+        adb.setMessage("One Left D is Extra Life\nUse when Needed");
+        adb.setIcon(android.R.drawable.ic_dialog_alert);
+        adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getApplicationContext(), "Got Extra Life :)",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        adb.show();
     }
 }
