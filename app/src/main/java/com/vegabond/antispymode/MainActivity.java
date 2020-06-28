@@ -28,10 +28,13 @@ import java.util.List;
 
 import static com.vegabond.antispymode.firstRunSetup.SettingFirstRunSetup;
 import android.content.DialogInterface;
+
+import com.vegabond.antispymode.FaceRecognition_Module.training_Main;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int SYSTEM_ALERT_WINDOW_PERMISSION = 2084;
 
-    static SettingsUtility.SettingsControl settingControl;
+    public static SettingsUtility.SettingsControl settingControl;
     static boolean stop = false;
     Thread thread;
 
@@ -79,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         findViewById(R.id.buttonCreateWidget).setOnClickListener(this);
 
-        Button btnTraining = findViewById(R.id.buttonTraining);
+        final Button btnTraining = findViewById(R.id.buttonTraining);
         if (settingControl.getFaceRecognitionMode()){
             btnTraining.setVisibility(View.VISIBLE);
         }else{
@@ -89,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnTraining.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getApplicationContext(),"Comming Soon...",Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(MainActivity.this, training_Main.class));
             }
         });
 
