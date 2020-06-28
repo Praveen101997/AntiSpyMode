@@ -469,8 +469,9 @@ public class CameraViewService extends Service implements View.OnClickListener {
 //                    stopService(new Intent(CameraViewService.this,WarningView.class));
                 }
                 Log.d("Test","Faces : "+faces.length);
+                Log.d("Test","No of faces needed : "+Integer.parseInt(settingControl.getTimerManyFaceCapturing()));
                 if (Integer.parseInt(settingControl.getTimerManyFaceCapturing())!=0) {
-                    if (faces.length > Integer.parseInt(settingControl.getTimerManyFaceCapturing())) {
+                    if (faces.length >= Integer.parseInt(settingControl.getTimerManyFaceCapturing())) {
                         if (spying == true) {
                             Toast.makeText(getApplicationContext(), "You are not alone", Toast.LENGTH_SHORT).show();
 //                        startService(new Intent(CameraViewService.this, SpyingWarningView.class));
