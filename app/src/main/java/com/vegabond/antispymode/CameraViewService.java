@@ -111,7 +111,7 @@ public class CameraViewService extends Service implements View.OnClickListener {
         }
     }
 
-    static int timer = 0;
+    static double timer = 0;
 
 
 

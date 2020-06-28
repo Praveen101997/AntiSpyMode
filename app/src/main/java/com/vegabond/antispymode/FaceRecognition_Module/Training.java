@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.vegabond.antispymode.MainActivity;
 import com.vegabond.antispymode.R;
@@ -17,6 +19,7 @@ public class Training extends AppCompatActivity {
 
     Button btnTraining;
     String name;
+    ToggleButton capture;
     int totalFaces;
 
 
@@ -49,5 +52,24 @@ public class Training extends AppCompatActivity {
                 }
             }
         });
+
+
+        capture = (ToggleButton) findViewById(R.id.capture);
+        capture.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                captureOnClick();
+            }
+        });
+    }
+
+    void captureOnClick()
+    {
+        if (capture.isChecked())
+            Toast.makeText(this, "Capturing", Toast.LENGTH_SHORT).show();
+        else {
+            Toast.makeText(this, "Captured", Toast.LENGTH_SHORT).show();
+
+        }
     }
 }

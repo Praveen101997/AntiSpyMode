@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnTraining.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Toast.makeText(getApplicationContext(),"Only Prototpye , More Funtions Comming Soon...",Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(MainActivity.this, training_Main.class));
             }
         });

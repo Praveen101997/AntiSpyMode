@@ -50,25 +50,22 @@ public class WarningView extends Service implements View.OnTouchListener {
 
             @Override
             public void run() {
-                try {
-                    while (!thread.isInterrupted()) {
-                        Thread.sleep(1000);
-                        Log.d("Check77","In run NoFace Detected :"+ noFaceDetected);
-                        if (!noFaceDetected){
-                            Log.d("Check77","In IF NoFace Detected :"+ noFaceDetected);
+                while (!thread.isInterrupted()) {
+//                        Thread.sleep(1000);
+                    Log.d("Check77","In run NoFace Detected :"+ noFaceDetected);
+                    if (!noFaceDetected){
+                        Log.d("Check77","In IF NoFace Detected :"+ noFaceDetected);
 //                            stopSelf();
 //                            break;
-                        }else{
-                            Log.d("Check77","In else NoFace Detected :"+ noFaceDetected);
-                        }
-                        if (stop==true){
-                            thread.interrupt();
-                            stopSelf();
-                        }
-
-
+                    }else{
+                        Log.d("Check77","In else NoFace Detected :"+ noFaceDetected);
                     }
-                } catch (InterruptedException e) {
+                    if (stop==true){
+                        thread.interrupt();
+                        stopSelf();
+                    }
+
+
                 }
             }
         };
