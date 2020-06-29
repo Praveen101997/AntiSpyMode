@@ -8,7 +8,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 2
-        versionName "Version 2.0-beta"
+        versionName "2.0-beta"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -27,4 +27,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation project(path: ':openCVLibrary341')
+    implementation 'org.bytedeco:javacv:1.4.1'
+    implementation 'org.bytedeco.javacpp-presets:opencv:3.4.1-1.4.1:android-arm64'
+    implementation 'org.bytedeco.javacpp-presets:ffmpeg:3.4.1-1.4.1:android-arm64'
+
 }

@@ -2,15 +2,11 @@
     <!-- No of Faces Preference -->
     <string-array name="No_Of_Face_entries">
         <item>One</item>
-        <item>Two</item>
-        <item>Three</item>
         <item>Disable</item>
     </string-array>
 
     <string-array name="No_Of_Face_values">
         <item>1</item>
-        <item>2</item>
-        <item>3</item>
         <item>0</item>
     </string-array>
 

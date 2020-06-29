@@ -92,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnTraining.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getApplicationContext(),"Only Prototpye , More Funtions Comming Soon...",Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(MainActivity.this, training_Main.class));
             }
         });
@@ -172,11 +171,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onStart();
 
         int camera = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+        int writeStoragePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int readStoragePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
 
         List<String> listPermissionsNeeded = new ArrayList<>();
 
         if (camera != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.CAMERA);
+        }
+        if (writeStoragePermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (readStoragePermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         }
         if (!listPermissionsNeeded.isEmpty()) {
             requestPermissions(listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), 101);
@@ -190,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
 //        adb.setView(alertDialogView);
         adb.setTitle("Special Hint");
-        adb.setMessage("One Left D is Extra Life\nUse when Needed");
+        adb.setMessage("One Left D is Extra Life\nUse when Needed\n\n Face Recognition Module WOrk in Landscape Mode");
         adb.setIcon(android.R.drawable.ic_dialog_alert);
         adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {

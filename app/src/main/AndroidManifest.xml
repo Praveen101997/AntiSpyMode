@@ -3,10 +3,18 @@
     xmlns:dist="http://schemas.android.com/apk/distribution"
     package="com.vegabond.antispymode">
 
+
+
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.front" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.front.autofocus" android:required="false"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <dist:module dist:instant="true" />
 
@@ -17,7 +25,10 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".FaceRecognition_Module.Training"></activity>
+        <activity
+            android:name=".FaceRecognition_Module.Training">
+
+        </activity>
         <activity android:name=".FaceRecognition_Module.training_Main" />
         <activity
             android:name=".SettingsActivity"

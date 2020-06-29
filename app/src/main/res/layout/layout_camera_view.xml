@@ -49,6 +49,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
+            <org.opencv.android.JavaCameraView
+                android:id="@+id/CameraJavaView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible"
+                />
+
             <com.vegabond.antispymode.OverlayView
                 android:id="@+id/overlay_view"
                 android:layout_width="match_parent"

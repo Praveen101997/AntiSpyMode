@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import com.vegabond.antispymode.MainActivity;
 import com.vegabond.antispymode.R;
+import com.vegabond.antispymode.SettingsUtility;
 
 public class training_Main extends AppCompatActivity {
 
@@ -26,7 +28,9 @@ public class training_Main extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_training__main);
 
-        totalFaces = Integer.parseInt(MainActivity.settingControl.getNoOfFacesInFaceRecognition());
+        totalFaces = Integer.parseInt(SettingsUtility.getOnDisplayControlSettings(getApplicationContext()).getNoOfFacesInFaceRecognition());
+
+        Log.d("Total Faces :",totalFaces+"");
         etName = findViewById(R.id.ETname);
         tvFaceTrained = findViewById(R.id.TVfaceTrained);
         btnNext = findViewById(R.id.btnNext);
