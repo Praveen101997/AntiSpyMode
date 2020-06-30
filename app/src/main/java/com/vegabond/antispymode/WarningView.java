@@ -16,6 +16,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import static com.vegabond.antispymode.CameraViewService.noFaceDetected;
+import static com.vegabond.antispymode.CameraViewService.selfFaceDetected;
 import static com.vegabond.antispymode.CameraViewService.timer;
 import static com.vegabond.antispymode.MainActivity.stop;
 
@@ -63,6 +64,10 @@ public class WarningView extends Service implements View.OnTouchListener {
                     if (stop==true){
                         thread.interrupt();
                         stopSelf();
+                    }
+                    if (selfFaceDetected){
+                        stopSelf();
+                        break;
                     }
 
 

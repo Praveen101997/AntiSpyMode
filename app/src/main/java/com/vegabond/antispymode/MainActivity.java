@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnTraining.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Toast.makeText(getApplicationContext(),"Training Mode",Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(MainActivity.this, training_Main.class));
             }
         });
@@ -99,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.buttonSetting).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Toast.makeText(getApplicationContext(),"Settings",Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(MainActivity.this,SettingsActivity.class));
             }
         });
@@ -115,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         startService(new Intent(MainActivity.this, CameraViewService.class));
                         finish();
                         stop = false;
+                        Toast.makeText(getApplicationContext(),"Refreshed Successfully",Toast.LENGTH_SHORT).show();
                     }
                 }, 5000);   //5 seconds
 
@@ -130,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 handler.postDelayed(new Runnable() {
                     public void run() {
                         stop = false;
+                        Toast.makeText(getApplicationContext(),"Stopped",Toast.LENGTH_SHORT).show();
                     }
                 }, 5000);   //5 seconds
 
@@ -197,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
 //        adb.setView(alertDialogView);
         adb.setTitle("Special Hint");
-        adb.setMessage("One Left D is Extra Life\nUse when Needed");
+        adb.setMessage("One Left D is Extra Life\nUse when Needed\nAnd Face is also better than D in Recognizing");
         adb.setIcon(android.R.drawable.ic_dialog_alert);
         adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {

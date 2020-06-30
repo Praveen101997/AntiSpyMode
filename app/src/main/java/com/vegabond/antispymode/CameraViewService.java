@@ -76,6 +76,7 @@ import static org.bytedeco.javacpp.opencv_imgproc.resize;
 public class CameraViewService extends Service implements View.OnClickListener {
 
     static boolean noFaceDetected = false;
+    static boolean selfFaceDetected = false;
 
 
     private WindowManager mWindowManager;
@@ -679,8 +680,16 @@ public class CameraViewService extends Service implements View.OnClickListener {
             mRgba = inputFrame.rgba();
             mGray = inputFrame.gray();
 
-            Mat rotImage = Imgproc.getRotationMatrix2D(new Point(mRgba.cols() / 2,
-                    mRgba.rows() / 2), 90, 1.0);
+            Mat rotImage;
+            if (cameraId.equals("0")){
+                rotImage = Imgproc.getRotationMatrix2D(new Point(mRgba.cols() / 2,
+                        mRgba.rows() / 2), 270, 1.0);
+            }else{
+                rotImage = Imgproc.getRotationMatrix2D(new Point(mRgba.cols() / 2,
+                        mRgba.rows() / 2), 90, 1.0);
+            }
+
+
 
             Imgproc.warpAffine(mRgba, mRgba, rotImage, mRgba.size());
 
@@ -753,14 +762,14 @@ public class CameraViewService extends Service implements View.OnClickListener {
                     double acceptanceLevel = confidence.get(0);
                     String name;
                     Log.d(TAG, "Prediction completed, predictedLabel: " + predictedLabel + ", acceptanceLevel: " + acceptanceLevel);
-                    if (predictedLabel >10 || acceptanceLevel >= THRESHOLD) {
+                    if (predictedLabel == -1 || acceptanceLevel >= THRESHOLD) {
                         name = "-";
-
                         noFaceDetected = true;
-
+                        selfFaceDetected = false;
                     } else {
                         noFaceDetected = false;
                         spying = false;
+                        selfFaceDetected = true;
                         name = Integer.toString(predictedLabel);
                     }
 
@@ -768,8 +777,16 @@ public class CameraViewService extends Service implements View.OnClickListener {
                     for (Rect face : facesArray) {
                         int posX = (int) Math.max(face.tl().x - 10, 0);
                         int posY = (int) Math.max(face.tl().y - 10, 0);
-                        Imgproc.putText(mRgba, "Closest picture: num." + name, new Point(posX, posY),
-                                Core.FONT_HERSHEY_TRIPLEX, 0.8, new Scalar(0, 255, 0, 255));
+                        if (name.equals("-")){
+                            Imgproc.putText(mRgba, "Waiting", new Point(posX, posY),
+                                    Core.FONT_HERSHEY_TRIPLEX, 0.5, new Scalar(0, 255, 255, 0));
+                        }else{
+                            Imgproc.putText(mRgba, "Recognized", new Point(posX, posY),
+                                    Core.FONT_HERSHEY_TRIPLEX, 0.5, new Scalar(0, 255, 0, 255));
+                        }
+
+//                        Imgproc.putText(mRgba, "Rec:"+ name, new Point(posX, posY),
+//                                Core.FONT_HERSHEY_TRIPLEX, 0.7, new Scalar(0, 255, 0, 255));
                     }
                 }catch (Exception e) {
                     Log.d(TAG, e.getLocalizedMessage(), e);

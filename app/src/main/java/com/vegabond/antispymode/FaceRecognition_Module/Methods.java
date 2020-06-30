@@ -29,8 +29,8 @@ public class Methods {
     public static final String FACE_PICS = "AntiSpyModeData";
     public static final int IMG_WIDTH = 92;
     public static final int IMG_HEIGHT = 112;
-    public static final int PHOTOS_TRAIN_QTY = 25;
-    public static final double THRESHOLD = 150.0D;
+    public static final int PHOTOS_TRAIN_QTY = 50;
+    public static final double THRESHOLD = 145.0D;
     public static final String LBPH_CLASSIFIER = "lbphClassifier.xml";
     public static final File ROOT = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), FACE_PICS);
 

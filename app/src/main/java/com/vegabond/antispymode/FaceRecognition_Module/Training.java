@@ -39,6 +39,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static com.vegabond.antispymode.FaceRecognition_Module.Methods.PHOTOS_TRAIN_QTY;
 import static com.vegabond.antispymode.FaceRecognition_Module.Methods.reset;
 import static com.vegabond.antispymode.FaceRecognition_Module.Methods.train;
 import static com.vegabond.antispymode.FaceRecognition_Module.training_Main.currentFace;
@@ -50,10 +51,11 @@ public class Training extends AppCompatActivity implements CameraBridgeViewBase.
     ToggleButton capture;
     int totalFaces;
     ProgressBar progressTrain;
+    Boolean trained = false;
 
     //==============================================================================================
     //Face Training Module
-    int totalPics = 25;
+    int totalPics = PHOTOS_TRAIN_QTY;
     int startPics = 1;
     private static final String TAG = "TrainActivity";
     private CameraBridgeViewBase mOpenCvCameraView;
@@ -166,23 +168,23 @@ public class Training extends AppCompatActivity implements CameraBridgeViewBase.
             @Override
             public void onClick(View view) {
                 train();
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        if (currentFace<totalFaces){
-                            currentFace++;
-
-                            Toast.makeText(getApplicationContext(),"Trained Face for "+name,Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(Training.this,training_Main.class));
-
-                        }else{
-                            currentFace = 1;
-                            Toast.makeText(getApplicationContext(),"Trained Face for "+name,Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(Training.this,MainActivity.class));
-
-                        }
-                    }
-                }, 10000);   //10 seconds
+//                Handler handler = new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    public void run() {
+//                        if (currentFace<totalFaces){
+//                            currentFace++;
+//
+//                            Toast.makeText(getApplicationContext(),"Trained Face for "+name,Toast.LENGTH_SHORT).show();
+//                            startActivity(new Intent(Training.this,training_Main.class));
+//
+//                        }else{
+//                            currentFace = 1;
+//                            Toast.makeText(getApplicationContext(),"Trained Face for "+name,Toast.LENGTH_SHORT).show();
+//                            startActivity(new Intent(Training.this,MainActivity.class));
+//
+//                        }
+//                    }
+//                }, 10000);   //10 seconds
 
 
             }
@@ -200,6 +202,7 @@ public class Training extends AppCompatActivity implements CameraBridgeViewBase.
         findViewById(R.id.resetCapture).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                startPics  = 1;
                 reset();
                 Toast.makeText(getApplicationContext(),"Reset Face Data",Toast.LENGTH_SHORT).show();
             }
@@ -293,7 +296,7 @@ public class Training extends AppCompatActivity implements CameraBridgeViewBase.
         }
     };
 
-    private int mInterval = 20; // 5 seconds by default, can be changed later
+    private int mInterval = 20; // 0.2 seconds by default, can be changed later
     private Handler mHandler;
 
     void startRepeatingTask() {
@@ -323,8 +326,17 @@ public class Training extends AppCompatActivity implements CameraBridgeViewBase.
         mRgba = inputFrame.rgba();
         mGray = inputFrame.gray();
 
-        Mat rotImage = Imgproc.getRotationMatrix2D(new Point(mRgba.cols() / 2,
-                mRgba.rows() / 2), 90, 1.0);
+        Mat rotImage;
+        if (mCameraId==0){
+            rotImage = Imgproc.getRotationMatrix2D(new Point(mRgba.cols() / 2,
+                    mRgba.rows() / 2), 270, 1.0);
+        }else{
+            rotImage = Imgproc.getRotationMatrix2D(new Point(mRgba.cols() / 2,
+                    mRgba.rows() / 2), 90, 1.0);
+        }
+
+//        Mat rotImage = Imgproc.getRotationMatrix2D(new Point(mRgba.cols() / 2,
+//                mRgba.rows() / 2), 90, 1.0);
 
         Imgproc.warpAffine(mRgba, mRgba, rotImage, mRgba.size());
 
@@ -379,7 +391,7 @@ public class Training extends AppCompatActivity implements CameraBridgeViewBase.
 
     //Method for training which is executed by pressing Train
     private void train() {
-        int remainingPhotos = Methods.PHOTOS_TRAIN_QTY - Methods.numPhotos();
+        int remainingPhotos = PHOTOS_TRAIN_QTY - Methods.numPhotos();
         if (remainingPhotos > 0) {
             Toast.makeText(this, "You need " + remainingPhotos + " more photo(s)", Toast.LENGTH_SHORT).show();
             return;
@@ -408,11 +420,25 @@ public class Training extends AppCompatActivity implements CameraBridgeViewBase.
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
                 try {
+                    trained = true;
                     progressTrain.setVisibility(View.INVISIBLE);
                     if (Methods.isTrained()) {
+
                         Toast.makeText(Training.this, "Training successful", Toast.LENGTH_SHORT).show();
                     }else {
                         Toast.makeText(Training.this, "Training unsuccessful", Toast.LENGTH_SHORT).show();
+                    }
+                    if (currentFace<totalFaces){
+                        currentFace++;
+
+                        Toast.makeText(getApplicationContext(),"Trained Face for "+name,Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(Training.this,training_Main.class));
+
+                    }else{
+                        currentFace = 1;
+                        Toast.makeText(getApplicationContext(),"Trained Face for "+name,Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(Training.this,MainActivity.class));
+
                     }
                 }catch (Exception e) {
                     Log.d(TAG, e.getLocalizedMessage(), e);
@@ -426,7 +452,7 @@ public class Training extends AppCompatActivity implements CameraBridgeViewBase.
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                int remainingPhotos = Methods.PHOTOS_TRAIN_QTY - Methods.numPhotos();
+                int remainingPhotos = PHOTOS_TRAIN_QTY - Methods.numPhotos();
                 if (remainingPhotos > 0) {
                     Toast.makeText(getBaseContext(), "You need " + remainingPhotos + " more photo(s)", Toast.LENGTH_SHORT).show();
                 }else {
