@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
 //        adb.setView(alertDialogView);
         adb.setTitle("Special Hint");
-        adb.setMessage("One Left D is Extra Life\nUse when Needed\n\n Face Recognition Module WOrk in Landscape Mode");
+        adb.setMessage("One Left D is Extra Life\nUse when Needed");
         adb.setIcon(android.R.drawable.ic_dialog_alert);
         adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {

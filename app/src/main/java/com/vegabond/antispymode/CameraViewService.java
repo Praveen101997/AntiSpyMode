@@ -227,9 +227,6 @@ public class CameraViewService extends Service implements View.OnClickListener {
 
 
 
-
-
-
         //getting windows services and adding the floating view to it
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mWindowManager.addView(mFloatingView, params);
@@ -295,7 +292,13 @@ public class CameraViewService extends Service implements View.OnClickListener {
 
         cameraView = (TextureView) mFloatingView.findViewById(R.id.CameraTextureView);
         mOpenCvCameraView = mFloatingView.findViewById(R.id.CameraJavaView);
+
+        expandedView.setLayoutParams(new RelativeLayout.LayoutParams(Integer.parseInt(settingControl.getCameraSize())*15, Integer.parseInt(settingControl.getCameraSize())*20));
+
         if (settingControl.getFaceRecognitionMode()){
+
+            expandedView.setLayoutParams(new RelativeLayout.LayoutParams(30*15, 30*20));
+
             if (!OpenCVLoader.initDebug()) {
                 Log.d("TAG", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
                 OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, this, mLoaderCallback);
@@ -334,7 +337,7 @@ public class CameraViewService extends Service implements View.OnClickListener {
 
 
 
-        expandedView.setLayoutParams(new RelativeLayout.LayoutParams(Integer.parseInt(settingControl.getCameraSize())*15, Integer.parseInt(settingControl.getCameraSize())*20));
+
 
 
         //==========================================================================================
@@ -671,6 +674,17 @@ public class CameraViewService extends Service implements View.OnClickListener {
         public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
             mRgba = inputFrame.rgba();
             mGray = inputFrame.gray();
+
+
+            mRgba = inputFrame.rgba();
+            mGray = inputFrame.gray();
+
+            Mat rotImage = Imgproc.getRotationMatrix2D(new Point(mRgba.cols() / 2,
+                    mRgba.rows() / 2), 90, 1.0);
+
+            Imgproc.warpAffine(mRgba, mRgba, rotImage, mRgba.size());
+
+            Imgproc.warpAffine(mGray, mGray, rotImage, mRgba.size());
 
             //Computing absolute face size
             if (mAbsoluteFaceSize == 0) {

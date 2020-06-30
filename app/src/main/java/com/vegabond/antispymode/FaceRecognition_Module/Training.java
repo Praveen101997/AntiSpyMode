@@ -27,6 +27,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -322,24 +323,22 @@ public class Training extends AppCompatActivity implements CameraBridgeViewBase.
         mRgba = inputFrame.rgba();
         mGray = inputFrame.gray();
 
-        int height = mGray.rows();
+        Mat rotImage = Imgproc.getRotationMatrix2D(new Point(mRgba.cols() / 2,
+                mRgba.rows() / 2), 90, 1.0);
 
-        mAbsoluteFaceSize = Math.round(height * 0.5F);
+        Imgproc.warpAffine(mRgba, mRgba, rotImage, mRgba.size());
 
-        Mat temp = mGray.clone();
-        Core.transpose(mGray, temp);
-        Core.flip(temp, temp, -1);
+        Imgproc.warpAffine(mGray, mGray, rotImage, mRgba.size());
 
-        MatOfRect rectFaces = new MatOfRect();
 
-        //Computing absolute face size
-//        if (mAbsoluteFaceSize == 0) {
-//            int height = mGray.rows();
-//            float mRelativeFaceSize = 0.2f;
-//            if (Math.round(height * mRelativeFaceSize) > 0) {
-//                mAbsoluteFaceSize = Math.round(height * mRelativeFaceSize);
-//            }
-//        }
+//        Computing absolute face size
+        if (mAbsoluteFaceSize == 0) {
+            int height = mGray.rows();
+            float mRelativeFaceSize = 0.2f;
+            if (Math.round(height * mRelativeFaceSize) > 0) {
+                mAbsoluteFaceSize = Math.round(height * mRelativeFaceSize);
+            }
+        }
 
         MatOfRect faces = new MatOfRect();
 
